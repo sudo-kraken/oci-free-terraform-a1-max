@@ -4,6 +4,7 @@ package_update: true
 package_upgrade: true
 
 packages:
+  - ansible
   - tmux
   - rsync
   - git
