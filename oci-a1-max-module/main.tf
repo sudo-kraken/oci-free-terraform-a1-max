@@ -30,15 +30,15 @@ data "oci_identity_availability_domains" "ads" {
 }
 
 # Fetch boot volume information for instances in the availability domain.
-data "oci_core_boot_volumes" "oci_stack_boot_volumes" {
+data "oci_core_boot_volumes" "oci_a1_max_boot_volumes" {
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id      = oci_identity_compartment.oci_stack.id
+  compartment_id      = oci_identity_compartment.oci_a1_max.id
 }
 
 # Create a new compartment for OCI stack resources.
-resource "oci_identity_compartment" "oci_stack" {
+resource "oci_identity_compartment" "oci_a1_max" {
   compartment_id = var.tenancy_ocid
-  description    = "Compartment for oci_stack resources."
+  description    = "Compartment for oci_a1_max resources."
   name           = var.compartment_name
   freeform_tags  = var.tags
 }
@@ -48,10 +48,10 @@ module "vcn" {
   source  = "oracle-terraform-modules/vcn/oci"
   version = "3.5.5"
 
-  compartment_id = oci_identity_compartment.oci_stack.id
+  compartment_id = oci_identity_compartment.oci_a1_max.id
   region         = var.region
-  vcn_name       = "ocistack"
-  vcn_dns_label  = "ocistackdns"
+  vcn_name       = "oci_a1_max"
+  vcn_dns_label  = "ocia1maxdns"
 
   create_internet_gateway  = true
   create_nat_gateway       = false
@@ -61,9 +61,9 @@ module "vcn" {
 
 # Configure DHCP options for the VCN.
 resource "oci_core_dhcp_options" "dhcp-options" {
-  compartment_id = oci_identity_compartment.oci_stack.id
+  compartment_id = oci_identity_compartment.oci_a1_max.id
   vcn_id         = module.vcn.vcn_id
-  display_name   = "oci_stack-dhcp-options"
+  display_name   = "oci_a1_max-dhcp-options"
   freeform_tags  = var.tags
 
   options {
@@ -73,14 +73,14 @@ resource "oci_core_dhcp_options" "dhcp-options" {
 
   options {
     type                = "SearchDomain"
-    search_domain_names = ["ocistack.oraclevcn.com"]
+    search_domain_names = ["ocia1max.oraclevcn.com"]
   }
 
 }
 
 # Create a public subnet within the VCN.
 resource "oci_core_subnet" "vcn-public-subnet" {
-  compartment_id = oci_identity_compartment.oci_stack.id
+  compartment_id = oci_identity_compartment.oci_a1_max.id
   vcn_id         = module.vcn.vcn_id
   cidr_block     = "10.0.0.0/24"
   freeform_tags  = var.tags
@@ -97,7 +97,7 @@ resource "oci_core_subnet" "vcn-public-subnet" {
 
 # Define a security list with necessary egress and ingress rules.
 resource "oci_core_security_list" "public-security-list" {
-  compartment_id = oci_identity_compartment.oci_stack.id
+  compartment_id = oci_identity_compartment.oci_a1_max.id
   vcn_id         = module.vcn.vcn_id
   display_name   = "security-list-public"
   freeform_tags  = var.tags
@@ -175,28 +175,28 @@ resource "oci_core_security_list" "public-security-list" {
 }
 
 # Define network security group and its rules.
-resource "oci_core_network_security_group" "oci_stack-network-security-group" {
-  compartment_id = oci_identity_compartment.oci_stack.id
+resource "oci_core_network_security_group" "oci_a1_max-network-security-group" {
+  compartment_id = oci_identity_compartment.oci_a1_max.id
   vcn_id         = module.vcn.vcn_id
-  display_name   = "network-security-group-oci_stack"
+  display_name   = "network-security-group-oci_a1_max"
   freeform_tags  = var.tags
 }
 
 # Ingress rule for the network security group.
-resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-ingress" {
-  network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
+resource "oci_core_network_security_group_security_rule" "oci_a1_max-network-security-group-list-ingress" {
+  network_security_group_id = oci_core_network_security_group.oci_a1_max-network-security-group.id
   direction                 = "INGRESS"
-  source                    = oci_core_network_security_group.oci_stack-network-security-group.id
+  source                    = oci_core_network_security_group.oci_a1_max-network-security-group.id
   source_type               = "NETWORK_SECURITY_GROUP"
   protocol                  = "all"
   stateless                 = true
 }
 
 # Egress rule for the network security group.
-resource "oci_core_network_security_group_security_rule" "oci_stack-network-security-group-list-egress" {
-  network_security_group_id = oci_core_network_security_group.oci_stack-network-security-group.id
+resource "oci_core_network_security_group_security_rule" "oci_a1_max-network-security-group-list-egress" {
+  network_security_group_id = oci_core_network_security_group.oci_a1_max-network-security-group.id
   direction                 = "EGRESS"
-  destination               = oci_core_network_security_group.oci_stack-network-security-group.id
+  destination               = oci_core_network_security_group.oci_a1_max-network-security-group.id
   destination_type          = "NETWORK_SECURITY_GROUP"
   protocol                  = "all"
   stateless                 = true
@@ -205,7 +205,7 @@ resource "oci_core_network_security_group_security_rule" "oci_stack-network-secu
 # Define instance for Ampere with maximum free storage, compute and memory.
 resource "oci_core_instance" "vm_instance_ampere" {
   availability_domain                 = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  compartment_id                      = oci_identity_compartment.oci_stack.id
+  compartment_id                      = oci_identity_compartment.oci_a1_max.id
   shape                               = "VM.Standard.A1.Flex"
   display_name                        = join("", [var.vm_name, "10"])
   preserve_boot_volume                = false
@@ -238,14 +238,14 @@ resource "oci_core_instance" "vm_instance_ampere" {
     assign_private_dns_record = true
     hostname_label            = join("", [var.vm_name, "10"])
     private_ip                = join(".", ["10", "0", "0", 110])
-    nsg_ids                   = [oci_core_network_security_group.oci_stack-network-security-group.id]
+    nsg_ids                   = [oci_core_network_security_group.oci_a1_max-network-security-group.id]
     freeform_tags             = var.tags
   }
 }
 
 # Define an additional storage volume and attach it to the ampere instance.
-resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
-  compartment_id       = oci_identity_compartment.oci_stack.id
+resource "oci_core_volume" "vm_instance_oci_a1_max_core_volume" {
+  compartment_id       = oci_identity_compartment.oci_a1_max.id
   availability_domain  = data.oci_identity_availability_domains.ads.availability_domains[0].name
   display_name         = join("-", [var.vm_name, "core", "volume"])
   freeform_tags        = var.tags
@@ -257,9 +257,9 @@ resource "oci_core_volume" "vm_instance_oci_stack_core_volume" {
 resource "oci_core_volume_attachment" "extra_volume_attachment" {
   attachment_type                     = "paravirtualized"
   instance_id                         = oci_core_instance.vm_instance_ampere.id
-  volume_id                           = oci_core_volume.vm_instance_oci_stack_core_volume.id
+  volume_id                           = oci_core_volume.vm_instance_oci_a1_max_core_volume.id
   device                              = "/dev/oracleoci/oraclevdb"
-  display_name                        = "oci_stack-core-volume-attachment"
+  display_name                        = "oci_a1_max-core-volume-attachment"
   is_pv_encryption_in_transit_enabled = true
   is_read_only                        = false
 }
