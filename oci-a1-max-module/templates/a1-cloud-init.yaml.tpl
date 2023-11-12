@@ -4,6 +4,7 @@ package_update: true
 package_upgrade: true
 
 packages:
+  - ansible
   - tmux
   - rsync
   - git
@@ -20,9 +21,10 @@ system_info:
     groups: [docker]
 
 runcmd:
+  - grubby --update-kernel ALL
   - dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   - dnf update -y
-  - dnf install 
+  - dnf install epel-release -y
   - dnf install docker-ce docker-ce-cli containerd.io -y
   - dnf install -y docker-compose-plugin
   - docker compose --version
