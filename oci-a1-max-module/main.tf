@@ -264,4 +264,23 @@ resource "oci_core_volume_attachment" "extra_volume_attachment" {
   is_read_only                        = false
 }
 
+# Backup Policy
+resource "oci_core_volume_backup_policy" "backup_policy" {
+  count = 3
+  compartment_id = oci_identity_compartment.oci_a1_max.id
+  display_name = "Daily Backup"
 
+  schedules {
+    backup_type       = "INCREMENTAL"
+    hour_of_day       = 2
+    offset_type       = "STRUCTURED"
+    period            = "ONE_DAY"
+    retention_seconds = 86400
+    time_zone         = "REGIONAL_DATA_CENTER_TIME"
+  }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "backup_policy_assignment" {
+  asset_id  = oci_core_instance.vm_instance_ampere.boot_volume_id
+  policy_id = oci_core_volume_backup_policy.backup_policy.id
+}
