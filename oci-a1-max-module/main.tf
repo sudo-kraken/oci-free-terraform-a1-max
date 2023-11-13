@@ -283,4 +283,8 @@ resource "oci_core_volume_backup_policy" "backup_policy" {
 resource "oci_core_volume_backup_policy_assignment" "backup_policy_assignment" {
   asset_id  = oci_core_instance.vm_instance_ampere.boot_volume_id
   policy_id = oci_core_volume_backup_policy.backup_policy.id
+
+  depends_on = [
+    oci_core_instance.vm_instance_ampere
+  ]
 }
