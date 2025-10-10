@@ -1,6 +1,6 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  description: "Automated dependency updates for terraform-gcp-ubuntu-container-ready-e2-micro-vm",
+  description: "Automated dependency updates for oci-free-terraform-a1-max",
   extends: [
     "config:recommended",
     "docker:enableMajor",
@@ -12,10 +12,10 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":timezone(Europe/London)",
-    "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/devcontainers.json5",
-    "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/labels.json5",
-    "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/semanticCommits.json5",
-    "github>sudo-kraken/terraform-gcp-ubuntu-container-ready-e2-micro-vm//.github/renovate/terraform.json5",
+    "github>sudo-kraken/oci-free-terraform-a1-max//.github/renovate/devcontainers.json5",
+    "github>sudo-kraken/oci-free-terraform-a1-max//.github/renovate/labels.json5",
+    "github>sudo-kraken/oci-free-terraform-a1-max//.github/renovate/semanticCommits.json5",
+    "github>sudo-kraken/oci-free-terraform-a1-max//.github/renovate/terraform.json5",
   ],
   dependencyDashboardTitle: "Renovate Dashboard 🤖",
   suppressNotifications: ["prEditedNotification", "prIgnoreNotification"],
