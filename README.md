@@ -1,60 +1,134 @@
-<p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&pause=1000&width=500&lines=OCI+A1+Max+Terraform+Module+(Free+Forever)" alt="Typing SVG"/>
-</p>
+<div align="center">
+<img src="docs/assets/logo.png" align="center" width="144px" height="144px"/>
 
-<p align="center">
-  <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="50" alt="Repo Languages and Tools"/>
-</p>
+### OCI A1 Max Terraform Module
 
-<h1 align="center">Repo Languages and Tools</h1>
- 
-<p align="center">
-  <a href="https://www.oracle.com/uk/cloud/"><img src="https://img.shields.io/badge/Oracle-F80000?style=flat&logo=oracle&logoColor=white" alt="Oracle" /></a>
-  <a href="https://www.terraform.io/"><img src="https://img.shields.io/badge/-Terraform-623CE4?style=flat&logo=terraform&logoColor=white" alt="Terraform" /></a>
-  <a href="https://git-scm.com/"><img src="https://img.shields.io/badge/-Git-F05032?style=flat&logo=git&logoColor=white" alt="Git" /></a>
-  <a href="https://github.com/features/actions"><img src="https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat&logo=github-actions&logoColor=white" alt="GitHub Actions" /></a>
-  <a href="https://www.linux.org/"><img src="https://img.shields.io/badge/-Linux-FCC624?style=flat&logo=linux&logoColor=black" alt="Linux" /></a>
-  <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/-Docker-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /></a>
-  <a href="https://www.gnu.org/software/bash/"><img src="https://img.shields.io/badge/-Bash-4EAA25?style=flat&logo=gnu-bash&logoColor=white" alt="Bash" /></a>
-</p>
-<br>
-<p align="center">
-  <a href="https://www.buymeacoffee.com/jharrison94" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60px" width="217px" >
-    
-This module is used for provisioning Oracle Cloud Infrastructure (OCI) deployments, offering a comprehensive and efficient solution for setting up a robust cloud environment. It seamlessly provisions an instance of;
-  - 1x VM.Standard.A1.Flex instance equipped with 4 OCPUs and 24 GB RAM with 100 GB boot volume. Additionally, it includes a 100 GB block volume
+_Opinionated Terraform for Oracle Cloud Infrastructure that provisions a free-tier friendly A1 Flex instance with networking and storage. Includes a ready-to-run GitHub Actions workflow._
+</div>
 
-A pivotal aspect of this module is its sophisticated networking setup, creating a Virtual Cloud Network (VCN) with all necessary components, such as subnets, security lists, and internet gateways, ensuring seamless connectivity and security. 
+<div align="center">
+
+[![Terraform](https://img.shields.io/badge/Terraform-Required-623CE4?logo=terraform&logoColor=white&style=for-the-badge)](https://www.terraform.io/)
+[![Terraform Version](https://img.shields.io/badge/Terraform-1.6%2B-623CE4?logo=terraform&logoColor=white&style=for-the-badge)](https://www.terraform.io/)
+
+</div>
+
+<div align="center">
+
+[![OpenSSF Scorecard](https://img.shields.io/ossf-scorecard/github.com/sudo-kraken/oci-free-terraform-a1-max?label=openssf%20scorecard&style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/sudo-kraken/oci-free-terraform-a1-max)
+
+</div>
+
+## Contents
+
+- [Overview](#overview)
+- [Architecture at a glance](#architecture-at-a-glance)
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+  - [Secrets required](#secrets-required)
+- [Automated deployment with GitHub Actions](#automated-deployment-with-github-actions)
+  - [GitHub Action execution](#github-action-execution)
+  - [Accessing the instance](#accessing-the-instance)
+- [Quick start](#quick-start)
+- [Troubleshooting](#troubleshooting)
+- [Licence](#licence)
+- [Security](#security)
+- [Contributing](#contributing)
+- [Support](#support)
+
+## Overview
+
+This module provisions an Oracle Cloud Infrastructure environment tailored to the free-tier allowances. It creates compute, networking and storage to run useful workloads at zero cost where available.
+
+The stack deploys:
+- **1x VM.Standard.A1.Flex** instance with **4 OCPUs** and **24 GB RAM**
+- **100 GB boot volume** plus an additional **100 GB block volume**
+- A **Virtual Cloud Network** with subnets, security lists and an internet gateway
+
+## Architecture at a glance
+
+- Terraform defines:
+  - VCN, public subnets, security lists and internet gateway
+  - One A1 Flex compute instance
+  - One attached block volume
+- Opinionated security lists for typical access patterns
+- Outputs expose public IP and key resource identifiers
+
+## Features
+
+- Free-tier friendly shapes and sizes
+- Baseline networking with public access where required
+- Automated plan and apply via GitHub Actions
+- Automatic clean-up on failure to keep the tenancy tidy
 
 ## Prerequisites
- - Oracle Cloud Infrastructure account
- - OCI API Credentials stored in the form of GitHub Secrets
 
-### Secrets Required
-| Secret Name | Description |
+- Oracle Cloud Infrastructure account
+- Terraform 1.6 or newer
+- **OCI API credentials** stored as GitHub Secrets
+
+### Secrets required
+
+| Secret name | Description |
 |-------------|-------------|
-| `PAT_TOKEN` | PAT Token the pipeline uses to checkout the repo. |
-| `PKEY` | OCI SSH private key. |
-| `TENANCY_OCID` | OCID of your OCI tenancy. |
-| `USER_OCID` | OCID of the OCI user. |
-| `FP` | Fingerprint for the OCI user. |
-| `SSH_PUB_KEY` | SSH public key you wish to use for accessing the provisioned instances. |
+| `PAT_TOKEN` | Personal access token used by the pipeline to check out the repository |
+| `PKEY` | OCI SSH private key |
+| `TENANCY_OCID` | OCID of your tenancy |
+| `USER_OCID` | OCID of your user |
+| `FP` | Fingerprint for the user’s API key |
+| `SSH_PUB_KEY` | SSH public key added to the instance for access |
 
-## Automated Deployment with GitHub Actions
-This module is designed for seamless integration with GitHub Actions, allowing for automated deployment. The provided GitHub Action workflow, named 'Execute OCI Pipeline', is triggered manually and performs the following tasks:
+## Automated deployment with GitHub Actions
 
-- Checks out the repository to the GitHub Actions runner.
-- Sets up Node.js and Terraform CLI environments.
-- Configures SSH Private Key and Terraform variables using GitHub Secrets.
-- Initialises Terraform and generates an execution plan.
-- Applies the Terraform configuration to deploy the resources.
-- In case of failure, the workflow is designed to automatically destroy the resources, ensuring a clean state.
+The workflow **Execute OCI Pipeline** performs the following:
 
-## GitHub Action Execution
-The `main.tf` file located in the root directory of this repository is crucial for the GitHub Action execution. It serves as the entry point for the Terraform operations triggered by the GitHub Action workflow. When the workflow is run, it uses the configuration defined in `main.tf` to deploy the module. This configuration includes updating and installing additional packages, including Docker and Docker Compose, on the instances.
+- Checks out the repository to the GitHub runner
+- Sets up **Node.js** and the **Terraform CLI**
+- Configures the SSH private key and Terraform variables from **GitHub Secrets**
+- Initialises Terraform, creates a plan and applies it
+- On failure, automatically destroys provisioned resources to return to a clean state
 
-### Accessing the Instances
-Upon successful completion of the action, the public IP of the A1 instance will be displayed in the output. You can access the instance via SSH using the username `opc` and the SSH key you have provided. The SSH key is crucial for secure and authenticated access to the instances.
+### GitHub Action execution
 
-It's important to ensure that `main.tf` is correctly set up and updated, as it directly influences the infrastructure that the GitHub Action will provision and manage in OCI (Oracle Cloud Infrastructure).
+The root **`main.tf`** is the entry point used by the workflow. It wires the module, variables and any provisioners. As part of instance initialisation it **updates packages** and installs **Docker** and **Docker Compose**.
 
+### Accessing the instance
+
+When the workflow completes successfully, the **public IP** is shown in the Terraform outputs. Connect using:
+
+- Username: `opc`  
+- Authentication: your SSH key corresponding to `SSH_PUB_KEY`
+
+## Quick start
+
+1. **Fork or clone** this repository into your GitHub account.
+2. Add the **GitHub Secrets** listed above in your repository settings.
+3. Review `main.tf` and variables for region, compartment and any tags.
+4. Open the **Actions** tab, select **Execute OCI Pipeline**, provide inputs and **run** it.
+5. Use the outputs to **SSH** to the instance as `opc`.
+
+## Troubleshooting
+
+- **Apply failed or timed out**  
+  Check Actions logs for missing or incorrect secrets. Confirm tenancy, compartment and region values.
+- **Cannot SSH**  
+  Ensure `SSH_PUB_KEY` matches your private key and that security lists allow ingress from your IP.
+- **Quota or capacity constraints**  
+  Free-tier entitlements and regional capacity can vary. Try another region or adjust shapes.
+
+## Licence
+
+This project is licensed under the MIT Licence. See the [LICENCE](LICENCE) file for details.
+
+## Security
+
+If you discover a security issue, please review and follow the guidance in [SECURITY.md](SECURITY.md), or open a private security-focused issue with minimal details and request a secure contact channel.
+
+## Contributing
+
+Feel free to open issues or submit pull requests if you have suggestions or improvements.  
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Support
+
+Open an [issue](/../../issues) with as much detail as possible, including your tenancy region, the workflow you ran and relevant Terraform logs.
