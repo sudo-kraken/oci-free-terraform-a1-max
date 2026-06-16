@@ -41,7 +41,7 @@ _Opinionated Terraform for Oracle Cloud Infrastructure that provisions a free-ti
 This module provisions an Oracle Cloud Infrastructure environment tailored to the free-tier allowances. It creates compute, networking and storage to run useful workloads at zero cost where available.
 
 The stack deploys:
-- **1x VM.Standard.A1.Flex** instance with **4 OCPUs** and **24 GB RAM**
+- **1x VM.Standard.A1.Flex** instance with **2 OCPUs** and **12 GB RAM** # REDUCED FROM 4 OCPUs and 26GB RAM 15/06/2026
 - **100 GB boot volume** plus an additional **100 GB block volume**
 - A **Virtual Cloud Network** with subnets, security lists and an internet gateway
 
